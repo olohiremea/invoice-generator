@@ -1,0 +1,46 @@
+export interface Package {
+  id: string;
+  name: string;
+  description: string;
+  unitPrice: number;
+  unit: string;
+}
+
+export interface LineItem {
+  packageId: string;
+  packageName: string;
+  description: string;
+  unitPrice: number;
+  unit: string;
+  quantity: number;
+}
+
+export type DiscountType = 'percentage' | 'flat';
+
+export interface Discount {
+  type: DiscountType;
+  value: number;
+}
+
+export interface BusinessSettings {
+  businessName: string;
+  logoDataUrl: string | null;
+  invoicePrefix: string;
+  nextInvoiceNumber: number;
+  currency: string;
+  footerNote: string;
+}
+
+export interface ActiveInvoice {
+  invoiceNumber: string;
+  issueDate: string;
+  client: {
+    name: string;
+    phone: string;
+  };
+  lineItems: LineItem[];
+  discount: Discount | null;
+  notes: string;
+}
+
+export type AppView = 'packages' | 'invoice' | 'settings';
