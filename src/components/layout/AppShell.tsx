@@ -21,7 +21,7 @@ export function AppShell({ currentView, onNavigate, children }: AppShellProps) {
       <aside className="no-print w-56 shrink-0 bg-white border-r border-gray-200 flex flex-col">
         <div className="px-5 py-5 border-b border-gray-200">
           <div className="flex items-center gap-2">
-            <FileText size={20} className="text-blue-600" />
+            <FileText size={20} className="accent-text" />
             <span className="font-semibold text-gray-900 text-sm">InvoiceApp</span>
           </div>
         </div>
@@ -34,7 +34,7 @@ export function AppShell({ currentView, onNavigate, children }: AppShellProps) {
                 flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium w-full text-left
                 transition-colors duration-150 cursor-pointer
                 ${currentView === view
-                  ? 'bg-blue-50 text-blue-700'
+                  ? 'nav-active'
                   : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}
               `}
             >

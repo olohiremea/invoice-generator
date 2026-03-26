@@ -41,7 +41,7 @@ export function InvoiceSummary() {
           )}
           <div className="border-t border-gray-200 pt-2 flex justify-between">
             <span className="font-bold text-gray-900">Total{groups.length > 1 ? ` (${currency})` : ''}</span>
-            <span className="font-bold text-xl text-blue-700">
+            <span className="font-bold text-xl accent-text">
               {formatCurrency(total, currency)}
             </span>
           </div>

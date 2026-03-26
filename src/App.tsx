@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { AppView } from './types';
+import { useAppStore } from './store/useAppStore';
 import { AppShell } from './components/layout/AppShell';
 import { PackageManager } from './components/packages/PackageManager';
 import { InvoiceBuilder } from './components/invoice/InvoiceBuilder';
@@ -9,6 +10,11 @@ import { SettingsPage } from './components/settings/SettingsPage';
 
 function App() {
   const [view, setView] = useState<AppView>('invoice');
+  const accentColor = useAppStore((s) => s.settings.accentColor);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty('--accent', accentColor ?? '#2563EB');
+  }, [accentColor]);
 
   return (
     <AppShell currentView={view} onNavigate={setView}>

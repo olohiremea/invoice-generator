@@ -31,6 +31,15 @@ export interface CurrencyTotal {
   total: number;
 }
 
+export interface BankDetails {
+  bankName: string;
+  accountName: string;
+  accountNumber: string;
+  sortCode: string;
+  iban: string;
+  swift: string;
+}
+
 export interface BusinessSettings {
   businessName: string;
   logoDataUrl: string | null;
@@ -38,6 +47,9 @@ export interface BusinessSettings {
   nextInvoiceNumber: number;
   currency: string;
   footerNote: string;
+  paymentTerms: string;
+  bankDetails: BankDetails;
+  accentColor: string;
 }
 
 export interface ActiveInvoice {

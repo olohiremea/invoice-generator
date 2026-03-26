@@ -6,6 +6,8 @@ export function InvoicePreview() {
   const invoice = useAppStore((s) => s.activeInvoice);
   const settings = useAppStore((s) => s.settings);
   const groups = buildMultiCurrencyTotals(invoice.lineItems, invoice.discount);
+  const bank = settings.bankDetails;
+  const hasBankDetails = bank && (bank.bankName || bank.accountNumber || bank.iban);
 
   return (
     <div
@@ -23,8 +25,11 @@ export function InvoicePreview() {
               className="max-h-16 max-w-40 object-contain mb-2"
             />
           ) : (
-            <div className="w-14 h-14 rounded-lg bg-blue-100 flex items-center justify-center mb-2">
-              <span className="text-blue-600 font-bold text-xl">
+            <div
+              className="w-14 h-14 rounded-lg flex items-center justify-center mb-2"
+              style={{ backgroundColor: `${settings.accentColor ?? '#2563EB'}1a` }}
+            >
+              <span className="font-bold text-xl accent-text">
                 {settings.businessName.charAt(0).toUpperCase()}
               </span>
             </div>
@@ -32,24 +37,32 @@ export function InvoicePreview() {
           <p className="font-bold text-gray-900 text-base">{settings.businessName}</p>
         </div>
         <div className="text-right">
-          <h1 className="text-2xl font-bold text-blue-700 mb-1">INVOICE</h1>
+          <h1 className="text-2xl font-bold mb-1 accent-text">INVOICE</h1>
           <p className="text-gray-500">#{invoice.invoiceNumber}</p>
           <p className="text-gray-500 mt-1">Date: {formatDate(invoice.issueDate)}</p>
         </div>
       </div>
 
-      {/* Bill To */}
-      <div className="mb-8">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Bill To</p>
-        {invoice.client.name ? (
-          <>
-            <p className="font-semibold text-gray-900">{invoice.client.name}</p>
-            {invoice.client.phone && (
-              <p className="text-gray-600">{invoice.client.phone}</p>
-            )}
-          </>
-        ) : (
-          <p className="text-gray-300 italic">Client name will appear here</p>
+      {/* Bill To + Payment Terms */}
+      <div className="flex gap-8 mb-8">
+        <div className="flex-1">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Bill To</p>
+          {invoice.client.name ? (
+            <>
+              <p className="font-semibold text-gray-900">{invoice.client.name}</p>
+              {invoice.client.phone && (
+                <p className="text-gray-600">{invoice.client.phone}</p>
+              )}
+            </>
+          ) : (
+            <p className="text-gray-300 italic">Client name will appear here</p>
+          )}
+        </div>
+        {settings.paymentTerms && (
+          <div>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Payment Terms</p>
+            <p className="font-medium text-gray-800">{settings.paymentTerms}</p>
+          </div>
         )}
       </div>
 
@@ -123,7 +136,7 @@ export function InvoicePreview() {
                 <span className="font-bold text-gray-900 text-base">
                   Total{groups.length > 1 ? ` (${currency})` : ''}
                 </span>
-                <span className="font-bold text-blue-700 text-base">
+                <span className="font-bold text-base accent-text">
                   {formatCurrency(total, currency)}
                 </span>
               </div>
@@ -132,9 +145,54 @@ export function InvoicePreview() {
         )}
       </div>
 
+      {/* Bank Details */}
+      {hasBankDetails && (
+        <div className="border-t border-gray-200 pt-4 mb-4">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Payment Details</p>
+          <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-xs">
+            {bank.bankName && (
+              <div className="flex gap-2">
+                <span className="text-gray-400 shrink-0">Bank</span>
+                <span className="text-gray-700 font-medium">{bank.bankName}</span>
+              </div>
+            )}
+            {bank.accountName && (
+              <div className="flex gap-2">
+                <span className="text-gray-400 shrink-0">Account Name</span>
+                <span className="text-gray-700 font-medium">{bank.accountName}</span>
+              </div>
+            )}
+            {bank.accountNumber && (
+              <div className="flex gap-2">
+                <span className="text-gray-400 shrink-0">Account No.</span>
+                <span className="text-gray-700 font-medium">{bank.accountNumber}</span>
+              </div>
+            )}
+            {bank.sortCode && (
+              <div className="flex gap-2">
+                <span className="text-gray-400 shrink-0">Sort Code</span>
+                <span className="text-gray-700 font-medium">{bank.sortCode}</span>
+              </div>
+            )}
+            {bank.iban && (
+              <div className="flex gap-2">
+                <span className="text-gray-400 shrink-0">IBAN</span>
+                <span className="text-gray-700 font-medium">{bank.iban}</span>
+              </div>
+            )}
+            {bank.swift && (
+              <div className="flex gap-2">
+                <span className="text-gray-400 shrink-0">SWIFT/BIC</span>
+                <span className="text-gray-700 font-medium">{bank.swift}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Footer note */}
       {settings.footerNote && (
-        <div className="border-t border-gray-200 pt-4">
+        <div className={`${hasBankDetails ? '' : 'border-t border-gray-200 '} pt-4`}>
           <p className="text-xs text-gray-400 text-center">{settings.footerNote}</p>
         </div>
       )}

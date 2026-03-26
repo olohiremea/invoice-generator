@@ -38,7 +38,7 @@ export function PackageCard({ pkg, onEdit }: PackageCardProps) {
       <div className="flex items-center justify-between">
         <span className="text-xs text-gray-400">per {pkg.unit}</span>
         <div className="text-right">
-          <span className="text-base font-bold text-blue-700">
+          <span className="text-base font-bold accent-text">
             {formatCurrency(pkg.unitPrice, pkg.currency)}
           </span>
           <span className="text-xs text-gray-400 ml-1">{pkg.currency}</span>

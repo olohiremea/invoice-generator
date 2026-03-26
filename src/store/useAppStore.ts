@@ -11,6 +11,16 @@ const DEFAULT_SETTINGS: BusinessSettings = {
   nextInvoiceNumber: 1,
   currency: 'USD',
   footerNote: 'Thank you for your business!',
+  paymentTerms: 'Due on Receipt',
+  bankDetails: {
+    bankName: '',
+    accountName: '',
+    accountNumber: '',
+    sortCode: '',
+    iban: '',
+    swift: '',
+  },
+  accentColor: '#2563EB',
 };
 
 const SEED_PACKAGES: Package[] = [
@@ -119,6 +129,15 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'invoice-app-store',
+      // Merge stored state with defaults so new fields appear for existing users
+      merge: (persisted, current) => ({
+        ...current,
+        ...(persisted as Partial<AppState>),
+        settings: {
+          ...current.settings,
+          ...((persisted as Partial<AppState>).settings ?? {}),
+        },
+      }),
     }
   )
 );

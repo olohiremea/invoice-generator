@@ -11,10 +11,7 @@ import type { ActiveInvoice, BusinessSettings } from '../../types';
 import { buildMultiCurrencyTotals } from '../../utils/calculations';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 
-Font.register({
-  family: 'Helvetica',
-  fonts: [],
-});
+Font.register({ family: 'Helvetica', fonts: [] });
 
 const styles = StyleSheet.create({
   page: {
@@ -30,79 +27,31 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: 32,
   },
-  logo: {
-    width: 80,
-    height: 40,
-    objectFit: 'contain',
-  },
+  logo: { width: 80, height: 40, objectFit: 'contain' },
   logoPlaceholder: {
-    width: 48,
-    height: 48,
-    backgroundColor: '#DBEAFE',
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: 48, height: 48, borderRadius: 8,
+    alignItems: 'center', justifyContent: 'center',
   },
-  logoPlaceholderText: {
-    fontSize: 20,
-    fontFamily: 'Helvetica-Bold',
-    color: '#2563EB',
+  logoPlaceholderText: { fontSize: 20, fontFamily: 'Helvetica-Bold' },
+  businessName: { fontSize: 12, fontFamily: 'Helvetica-Bold', color: '#111827', marginTop: 4 },
+  invoiceTitle: { fontSize: 24, fontFamily: 'Helvetica-Bold', textAlign: 'right' },
+  invoiceMeta: { color: '#6B7280', textAlign: 'right', marginTop: 2 },
+
+  billToRow: { flexDirection: 'row', gap: 40, marginBottom: 24 },
+  metaLabel: {
+    fontSize: 8, fontFamily: 'Helvetica-Bold', color: '#9CA3AF',
+    textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4,
   },
-  businessName: {
-    fontSize: 12,
-    fontFamily: 'Helvetica-Bold',
-    color: '#111827',
-    marginTop: 4,
-  },
-  invoiceTitle: {
-    fontSize: 24,
-    fontFamily: 'Helvetica-Bold',
-    color: '#2563EB',
-    textAlign: 'right',
-  },
-  invoiceMeta: {
-    color: '#6B7280',
-    textAlign: 'right',
-    marginTop: 2,
-  },
-  billTo: {
-    marginBottom: 24,
-  },
-  billToLabel: {
-    fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
-    color: '#9CA3AF',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 4,
-  },
-  clientName: {
-    fontFamily: 'Helvetica-Bold',
-    color: '#111827',
-    fontSize: 11,
-  },
-  clientPhone: {
-    color: '#6B7280',
-    marginTop: 2,
-  },
+  clientName: { fontFamily: 'Helvetica-Bold', color: '#111827', fontSize: 11 },
+  clientPhone: { color: '#6B7280', marginTop: 2 },
+  paymentTermsText: { fontFamily: 'Helvetica-Bold', color: '#111827' },
+
   tableHeader: {
-    flexDirection: 'row',
-    borderBottomWidth: 2,
-    borderBottomColor: '#111827',
-    paddingBottom: 6,
-    marginBottom: 0,
+    flexDirection: 'row', borderBottomWidth: 2, borderBottomColor: '#111827', paddingBottom: 6,
   },
-  tableHeaderText: {
-    fontFamily: 'Helvetica-Bold',
-    color: '#374151',
-    fontSize: 9,
-    textTransform: 'uppercase',
-  },
+  tableHeaderText: { fontFamily: 'Helvetica-Bold', color: '#374151', fontSize: 9, textTransform: 'uppercase' },
   tableRow: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-    paddingVertical: 8,
+    flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#F3F4F6', paddingVertical: 8,
   },
   colDescription: { flex: 1 },
   colQty: { width: 40, textAlign: 'center' },
@@ -112,54 +61,38 @@ const styles = StyleSheet.create({
   itemName: { fontFamily: 'Helvetica-Bold', color: '#111827', fontSize: 10 },
   itemDesc: { color: '#6B7280', fontSize: 8, marginTop: 2 },
   currencyBadge: { color: '#9CA3AF', fontSize: 8 },
-  totalsSection: {
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-    marginTop: 16,
-    gap: 12,
-  },
+
+  totalsSection: { flexDirection: 'column', alignItems: 'flex-end', marginTop: 16, gap: 12 },
   totalsBox: { width: 200 },
   currencyGroupLabel: {
-    fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
-    color: '#9CA3AF',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 4,
+    fontSize: 8, fontFamily: 'Helvetica-Bold', color: '#9CA3AF',
+    textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4,
   },
-  totalsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 4,
-  },
+  totalsRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
   totalLabel: { color: '#6B7280' },
   totalValue: { color: '#6B7280' },
   discountLabel: { color: '#059669' },
   discountValue: { color: '#059669' },
   grandTotalRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    borderTopWidth: 2,
-    borderTopColor: '#111827',
-    paddingTop: 6,
-    marginTop: 4,
+    flexDirection: 'row', justifyContent: 'space-between',
+    borderTopWidth: 2, borderTopColor: '#111827', paddingTop: 6, marginTop: 4,
   },
   grandTotalLabel: { fontFamily: 'Helvetica-Bold', fontSize: 12, color: '#111827' },
-  grandTotalValue: { fontFamily: 'Helvetica-Bold', fontSize: 12, color: '#2563EB' },
+  grandTotalValue: { fontFamily: 'Helvetica-Bold', fontSize: 12 },
+
+  bankSection: {
+    borderTopWidth: 1, borderTopColor: '#E5E7EB', marginTop: 24, paddingTop: 12,
+  },
+  bankGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 6 },
+  bankItem: { flexDirection: 'row', gap: 6, width: '48%' },
+  bankKey: { color: '#9CA3AF', fontSize: 9 },
+  bankVal: { fontFamily: 'Helvetica-Bold', color: '#111827', fontSize: 9 },
+
   footer: {
-    position: 'absolute',
-    bottom: 32,
-    left: 48,
-    right: 48,
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-    paddingTop: 8,
+    position: 'absolute', bottom: 32, left: 48, right: 48,
+    borderTopWidth: 1, borderTopColor: '#E5E7EB', paddingTop: 8,
   },
-  footerText: {
-    textAlign: 'center',
-    color: '#9CA3AF',
-    fontSize: 9,
-  },
+  footerText: { textAlign: 'center', color: '#9CA3AF', fontSize: 9 },
 });
 
 interface Props {
@@ -170,6 +103,10 @@ interface Props {
 export function InvoicePDFDocument({ invoice, settings }: Props) {
   const groups = buildMultiCurrencyTotals(invoice.lineItems, invoice.discount);
   const multiCurrency = groups.length > 1;
+  const accent = settings.accentColor ?? '#2563EB';
+  const accentLight = accent + '1a'; // ~10% opacity
+  const bank = settings.bankDetails;
+  const hasBankDetails = bank && (bank.bankName || bank.accountNumber || bank.iban);
 
   return (
     <Document>
@@ -180,8 +117,8 @@ export function InvoicePDFDocument({ invoice, settings }: Props) {
             {settings.logoDataUrl ? (
               <Image src={settings.logoDataUrl} style={styles.logo} />
             ) : (
-              <View style={styles.logoPlaceholder}>
-                <Text style={styles.logoPlaceholderText}>
+              <View style={[styles.logoPlaceholder, { backgroundColor: accentLight }]}>
+                <Text style={[styles.logoPlaceholderText, { color: accent }]}>
                   {settings.businessName.charAt(0).toUpperCase()}
                 </Text>
               </View>
@@ -189,19 +126,27 @@ export function InvoicePDFDocument({ invoice, settings }: Props) {
             <Text style={styles.businessName}>{settings.businessName}</Text>
           </View>
           <View>
-            <Text style={styles.invoiceTitle}>INVOICE</Text>
+            <Text style={[styles.invoiceTitle, { color: accent }]}>INVOICE</Text>
             <Text style={styles.invoiceMeta}>#{invoice.invoiceNumber}</Text>
             <Text style={styles.invoiceMeta}>Date: {formatDate(invoice.issueDate)}</Text>
           </View>
         </View>
 
-        {/* Bill To */}
-        <View style={styles.billTo}>
-          <Text style={styles.billToLabel}>Bill To</Text>
-          <Text style={styles.clientName}>{invoice.client.name || 'N/A'}</Text>
-          {invoice.client.phone && (
-            <Text style={styles.clientPhone}>{invoice.client.phone}</Text>
-          )}
+        {/* Bill To + Payment Terms */}
+        <View style={styles.billToRow}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.metaLabel}>Bill To</Text>
+            <Text style={styles.clientName}>{invoice.client.name || 'N/A'}</Text>
+            {invoice.client.phone ? (
+              <Text style={styles.clientPhone}>{invoice.client.phone}</Text>
+            ) : null}
+          </View>
+          {settings.paymentTerms ? (
+            <View>
+              <Text style={styles.metaLabel}>Payment Terms</Text>
+              <Text style={styles.paymentTermsText}>{settings.paymentTerms}</Text>
+            </View>
+          ) : null}
         </View>
 
         {/* Table Header */}
@@ -218,9 +163,7 @@ export function InvoicePDFDocument({ invoice, settings }: Props) {
           <View key={item.packageId} style={styles.tableRow}>
             <View style={styles.colDescription}>
               <Text style={styles.itemName}>{item.packageName}</Text>
-              {item.description ? (
-                <Text style={styles.itemDesc}>{item.description}</Text>
-              ) : null}
+              {item.description ? <Text style={styles.itemDesc}>{item.description}</Text> : null}
             </View>
             <Text style={[{ fontSize: 10 }, styles.colQty]}>{item.quantity}</Text>
             <Text style={[styles.currencyBadge, styles.colCurrency]}>{item.currency}</Text>
@@ -233,13 +176,11 @@ export function InvoicePDFDocument({ invoice, settings }: Props) {
           </View>
         ))}
 
-        {/* Totals — one block per currency */}
+        {/* Totals */}
         <View style={styles.totalsSection}>
           {groups.map(({ currency, subtotal, discountAmount, total }) => (
             <View key={currency} style={styles.totalsBox}>
-              {multiCurrency && (
-                <Text style={styles.currencyGroupLabel}>{currency}</Text>
-              )}
+              {multiCurrency && <Text style={styles.currencyGroupLabel}>{currency}</Text>}
               <View style={styles.totalsRow}>
                 <Text style={styles.totalLabel}>Subtotal</Text>
                 <Text style={styles.totalValue}>{formatCurrency(subtotal, currency)}</Text>
@@ -247,25 +188,67 @@ export function InvoicePDFDocument({ invoice, settings }: Props) {
               {discountAmount > 0 && (
                 <View style={styles.totalsRow}>
                   <Text style={styles.discountLabel}>
-                    Discount
-                    {invoice.discount?.type === 'percentage'
-                      ? ` (${invoice.discount.value}%)`
-                      : ''}
+                    Discount{invoice.discount?.type === 'percentage' ? ` (${invoice.discount.value}%)` : ''}
                   </Text>
-                  <Text style={styles.discountValue}>
-                    -{formatCurrency(discountAmount, currency)}
-                  </Text>
+                  <Text style={styles.discountValue}>-{formatCurrency(discountAmount, currency)}</Text>
                 </View>
               )}
               <View style={styles.grandTotalRow}>
                 <Text style={styles.grandTotalLabel}>
                   Total{multiCurrency ? ` (${currency})` : ''}
                 </Text>
-                <Text style={styles.grandTotalValue}>{formatCurrency(total, currency)}</Text>
+                <Text style={[styles.grandTotalValue, { color: accent }]}>
+                  {formatCurrency(total, currency)}
+                </Text>
               </View>
             </View>
           ))}
         </View>
+
+        {/* Bank Details */}
+        {hasBankDetails && (
+          <View style={styles.bankSection}>
+            <Text style={styles.metaLabel}>Payment Details</Text>
+            <View style={styles.bankGrid}>
+              {bank.bankName ? (
+                <View style={styles.bankItem}>
+                  <Text style={styles.bankKey}>Bank</Text>
+                  <Text style={styles.bankVal}>{bank.bankName}</Text>
+                </View>
+              ) : null}
+              {bank.accountName ? (
+                <View style={styles.bankItem}>
+                  <Text style={styles.bankKey}>Account Name</Text>
+                  <Text style={styles.bankVal}>{bank.accountName}</Text>
+                </View>
+              ) : null}
+              {bank.accountNumber ? (
+                <View style={styles.bankItem}>
+                  <Text style={styles.bankKey}>Account No.</Text>
+                  <Text style={styles.bankVal}>{bank.accountNumber}</Text>
+                </View>
+              ) : null}
+              {bank.sortCode ? (
+                <View style={styles.bankItem}>
+                  <Text style={styles.bankKey}>Sort Code</Text>
+                  <Text style={styles.bankVal}>{bank.sortCode}</Text>
+                </View>
+              ) : null}
+              {bank.iban ? (
+                <View style={styles.bankItem}>
+                  <Text style={styles.bankKey}>IBAN</Text>
+                  <Text style={styles.bankVal}>{bank.iban}</Text>
+                </View>
+              ) : null}
+              {bank.swift ? (
+                <View style={styles.bankItem}>
+                  <Text style={styles.bankKey}>SWIFT/BIC</Text>
+                  <Text style={styles.bankVal}>{bank.swift}</Text>
+                </View>
+              ) : null}
+            </View>
+          </View>
+        )}
 
         {/* Footer */}
         {settings.footerNote ? (
