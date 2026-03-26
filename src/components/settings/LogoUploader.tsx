@@ -2,15 +2,18 @@ import { useRef, useState } from 'react';
 import { Upload, X } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { Button } from '../ui/Button';
+import { uploadLogo, deleteLogo } from '../../lib/api';
 
 export function LogoUploader() {
   const logoDataUrl = useAppStore((s) => s.settings.logoDataUrl);
+  const userId = useAppStore((s) => s.userId);
   const updateSettings = useAppStore((s) => s.updateSettings);
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   const [error, setError] = useState('');
+  const [uploading, setUploading] = useState(false);
 
-  function processFile(file: File) {
+  async function processFile(file: File) {
     setError('');
     if (!file.type.startsWith('image/')) {
       setError('Please upload an image file.');
@@ -20,11 +23,25 @@ export function LogoUploader() {
       setError('Image must be under 2MB.');
       return;
     }
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      updateSettings({ logoDataUrl: e.target?.result as string });
-    };
-    reader.readAsDataURL(file);
+
+    if (userId) {
+      // Upload to Supabase Storage and store the public URL
+      setUploading(true);
+      try {
+        const url = await uploadLogo(userId, file);
+        updateSettings({ logoDataUrl: url });
+      } catch (e) {
+        setError('Upload failed. Please try again.');
+        console.error(e);
+      } finally {
+        setUploading(false);
+      }
+    } else {
+      // Fallback: no user yet, store as base64 (shouldn't normally happen)
+      const reader = new FileReader();
+      reader.onload = (e) => updateSettings({ logoDataUrl: e.target?.result as string });
+      reader.readAsDataURL(file);
+    }
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -39,9 +56,10 @@ export function LogoUploader() {
     if (file) processFile(file);
   }
 
-  function removeLogo() {
+  async function removeLogo() {
     updateSettings({ logoDataUrl: null });
     if (inputRef.current) inputRef.current.value = '';
+    if (userId) deleteLogo(userId).catch(console.error);
   }
 
   return (
@@ -68,12 +86,15 @@ export function LogoUploader() {
           onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
           onDragLeave={() => setDragging(false)}
           onDrop={handleDrop}
-          onClick={() => inputRef.current?.click()}
-          className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors
+          onClick={() => !uploading && inputRef.current?.click()}
+          className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors
+            ${uploading ? 'cursor-wait opacity-60' : 'cursor-pointer'}
             ${dragging ? 'border-blue-400 bg-blue-50' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'}`}
         >
           <Upload size={24} className="mx-auto text-gray-400 mb-2" />
-          <p className="text-sm text-gray-600 font-medium">Click to upload or drag & drop</p>
+          <p className="text-sm text-gray-600 font-medium">
+            {uploading ? 'Uploading…' : 'Click to upload or drag & drop'}
+          </p>
           <p className="text-xs text-gray-400 mt-1">PNG, JPG, SVG up to 2MB</p>
         </div>
       )}

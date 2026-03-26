@@ -1,8 +1,15 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import { v4 as uuidv4 } from 'uuid';
 import type { ActiveInvoice, BusinessSettings, Package } from '../types';
 import { todayISO } from '../utils/formatters';
+import {
+  fetchSettings,
+  saveSettings,
+  fetchPackages,
+  insertPackage,
+  patchPackage,
+  removePackage,
+} from '../lib/api';
 
 const DEFAULT_SETTINGS: BusinessSettings = {
   businessName: 'My Business',
@@ -13,42 +20,10 @@ const DEFAULT_SETTINGS: BusinessSettings = {
   footerNote: 'Thank you for your business!',
   paymentTerms: 'Due on Receipt',
   bankDetails: {
-    bankName: '',
-    accountName: '',
-    accountNumber: '',
-    sortCode: '',
-    iban: '',
-    swift: '',
+    bankName: '', accountName: '', accountNumber: '', sortCode: '', iban: '', swift: '',
   },
   accentColor: '#2563EB',
 };
-
-const SEED_PACKAGES: Package[] = [
-  {
-    id: uuidv4(),
-    name: 'Website Design',
-    description: 'Custom responsive website design (up to 5 pages)',
-    unitPrice: 1500,
-    unit: 'project',
-    currency: 'USD',
-  },
-  {
-    id: uuidv4(),
-    name: 'SEO Package',
-    description: 'Monthly search engine optimization and reporting',
-    unitPrice: 500,
-    unit: 'month',
-    currency: 'USD',
-  },
-  {
-    id: uuidv4(),
-    name: 'Consulting (Hourly)',
-    description: 'One-on-one business or technical consulting',
-    unitPrice: 150,
-    unit: 'hour',
-    currency: 'NGN',
-  },
-];
 
 function makeInvoiceNumber(prefix: string, num: number): string {
   return `${prefix}${String(num).padStart(4, '0')}`;
@@ -66,9 +41,14 @@ function freshInvoice(prefix: string, num: number): ActiveInvoice {
 }
 
 interface AppState {
+  userId: string | null;
   settings: BusinessSettings;
   packages: Package[];
   activeInvoice: ActiveInvoice;
+  dataLoading: boolean;
+
+  // Called once after login to hydrate from Supabase
+  loadFromSupabase: (userId: string) => Promise<void>;
 
   updateSettings: (patch: Partial<BusinessSettings>) => void;
 
@@ -78,66 +58,84 @@ interface AppState {
 
   updateActiveInvoice: (patch: Partial<ActiveInvoice>) => void;
   resetActiveInvoice: () => void;
-  bumpInvoiceNumber: () => void;
 }
 
-export const useAppStore = create<AppState>()(
-  persist(
-    (set, get) => ({
-      settings: DEFAULT_SETTINGS,
-      packages: SEED_PACKAGES,
-      activeInvoice: freshInvoice(DEFAULT_SETTINGS.invoicePrefix, DEFAULT_SETTINGS.nextInvoiceNumber),
+export const useAppStore = create<AppState>()((set) => ({
+  userId: null,
+  settings: DEFAULT_SETTINGS,
+  packages: [],
+  activeInvoice: freshInvoice(DEFAULT_SETTINGS.invoicePrefix, DEFAULT_SETTINGS.nextInvoiceNumber),
+  dataLoading: false,
 
-      updateSettings: (patch) =>
-        set((s) => ({ settings: { ...s.settings, ...patch } })),
+  loadFromSupabase: async (userId: string) => {
+    set({ dataLoading: true, userId });
+    try {
+      const [remoteSettings, remotePackages] = await Promise.all([
+        fetchSettings(userId),
+        fetchPackages(userId),
+      ]);
 
-      addPackage: (pkg) =>
-        set((s) => ({ packages: [...s.packages, { ...pkg, id: uuidv4() }] })),
+      const merged: BusinessSettings = {
+        ...DEFAULT_SETTINGS,
+        ...(remoteSettings ?? {}),
+      };
 
-      updatePackage: (id, patch) =>
-        set((s) => ({
-          packages: s.packages.map((p) => (p.id === id ? { ...p, ...patch } : p)),
-        })),
-
-      deletePackage: (id) =>
-        set((s) => ({ packages: s.packages.filter((p) => p.id !== id) })),
-
-      updateActiveInvoice: (patch) =>
-        set((s) => ({ activeInvoice: { ...s.activeInvoice, ...patch } })),
-
-      resetActiveInvoice: () => {
-        const { settings } = get();
-        const num = settings.nextInvoiceNumber;
-        set((s) => ({
-          activeInvoice: freshInvoice(s.settings.invoicePrefix, num),
-          settings: { ...s.settings, nextInvoiceNumber: num + 1 },
-        }));
-      },
-
-      bumpInvoiceNumber: () => {
-        const { settings, activeInvoice } = get();
-        if (activeInvoice.invoiceNumber !== makeInvoiceNumber(settings.invoicePrefix, settings.nextInvoiceNumber - 1)) {
-          set((s) => ({
-            activeInvoice: {
-              ...s.activeInvoice,
-              invoiceNumber: makeInvoiceNumber(s.settings.invoicePrefix, s.settings.nextInvoiceNumber),
-            },
-            settings: { ...s.settings, nextInvoiceNumber: s.settings.nextInvoiceNumber + 1 },
-          }));
-        }
-      },
-    }),
-    {
-      name: 'invoice-app-store',
-      // Merge stored state with defaults so new fields appear for existing users
-      merge: (persisted, current) => ({
-        ...current,
-        ...(persisted as Partial<AppState>),
-        settings: {
-          ...current.settings,
-          ...((persisted as Partial<AppState>).settings ?? {}),
-        },
-      }),
+      set({
+        settings: merged,
+        packages: remotePackages,
+        // Fresh invoice uses the loaded prefix + number
+        activeInvoice: freshInvoice(merged.invoicePrefix, merged.nextInvoiceNumber),
+      });
+    } finally {
+      set({ dataLoading: false });
     }
-  )
-);
+  },
+
+  updateSettings: (patch) => {
+    set((s) => {
+      const next = { ...s.settings, ...patch };
+      if (s.userId) saveSettings(s.userId, next).catch(console.error);
+      return { settings: next };
+    });
+  },
+
+  addPackage: (pkg) => {
+    const id = uuidv4();
+    set((s) => {
+      const newPkg: Package = { ...pkg, id };
+      if (s.userId) insertPackage(s.userId, pkg, id).catch(console.error);
+      return { packages: [...s.packages, newPkg] };
+    });
+  },
+
+  updatePackage: (id, patch) => {
+    set((s) => {
+      patchPackage(id, patch).catch(console.error);
+      return {
+        packages: s.packages.map((p) => (p.id === id ? { ...p, ...patch } : p)),
+      };
+    });
+  },
+
+  deletePackage: (id) => {
+    set((s) => {
+      removePackage(id).catch(console.error);
+      return { packages: s.packages.filter((p) => p.id !== id) };
+    });
+  },
+
+  updateActiveInvoice: (patch) =>
+    set((s) => ({ activeInvoice: { ...s.activeInvoice, ...patch } })),
+
+  resetActiveInvoice: () => {
+    set((s) => {
+      const num = s.settings.nextInvoiceNumber;
+      const next: BusinessSettings = { ...s.settings, nextInvoiceNumber: num + 1 };
+      if (s.userId) saveSettings(s.userId, next).catch(console.error);
+      return {
+        activeInvoice: freshInvoice(s.settings.invoicePrefix, num),
+        settings: next,
+      };
+    });
+  },
+}));
