@@ -1,12 +1,11 @@
 import { useAppStore } from '../../store/useAppStore';
-import { buildInvoiceTotals } from '../../utils/calculations';
+import { buildMultiCurrencyTotals } from '../../utils/calculations';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 
 export function InvoicePreview() {
   const invoice = useAppStore((s) => s.activeInvoice);
   const settings = useAppStore((s) => s.settings);
-  const { subtotal, discountAmount, total } = buildInvoiceTotals(invoice.lineItems, invoice.discount);
-  const currency = settings.currency;
+  const groups = buildMultiCurrencyTotals(invoice.lineItems, invoice.discount);
 
   return (
     <div
@@ -61,8 +60,8 @@ export function InvoicePreview() {
             <tr className="border-b-2 border-gray-900">
               <th className="text-left py-2 font-semibold text-gray-700 pr-4">Description</th>
               <th className="text-center py-2 font-semibold text-gray-700 w-14">Qty</th>
-              <th className="text-right py-2 font-semibold text-gray-700 w-24">Unit Price</th>
-              <th className="text-right py-2 font-semibold text-gray-700 w-24">Total</th>
+              <th className="text-right py-2 font-semibold text-gray-700 w-28">Unit Price</th>
+              <th className="text-right py-2 font-semibold text-gray-700 w-28">Total</th>
             </tr>
           </thead>
           <tbody>
@@ -83,10 +82,11 @@ export function InvoicePreview() {
                   </td>
                   <td className="py-3 text-center text-gray-700">{item.quantity}</td>
                   <td className="py-3 text-right text-gray-700">
-                    {formatCurrency(item.unitPrice, currency)}
+                    {formatCurrency(item.unitPrice, item.currency)}
+                    <span className="text-xs text-gray-400 ml-1">{item.currency}</span>
                   </td>
                   <td className="py-3 text-right font-medium text-gray-900">
-                    {formatCurrency(item.unitPrice * item.quantity, currency)}
+                    {formatCurrency(item.unitPrice * item.quantity, item.currency)}
                   </td>
                 </tr>
               ))
@@ -95,28 +95,41 @@ export function InvoicePreview() {
         </table>
       </div>
 
-      {/* Totals */}
-      <div className="flex justify-end mb-8">
-        <div className="w-56 flex flex-col gap-1.5">
-          <div className="flex justify-between text-gray-600">
-            <span>Subtotal</span>
-            <span>{formatCurrency(subtotal, currency)}</span>
+      {/* Totals — one block per currency */}
+      <div className="flex flex-col items-end gap-4 mb-8">
+        {groups.length === 0 ? (
+          <div className="w-56 flex justify-between text-gray-400">
+            <span>Total</span><span>—</span>
           </div>
-          {discountAmount > 0 && (
-            <div className="flex justify-between text-green-600">
-              <span>
-                Discount{invoice.discount?.type === 'percentage' ? ` (${invoice.discount.value}%)` : ''}
-              </span>
-              <span>-{formatCurrency(discountAmount, currency)}</span>
+        ) : (
+          groups.map(({ currency, subtotal, discountAmount, total }) => (
+            <div key={currency} className="w-56 flex flex-col gap-1.5">
+              {groups.length > 1 && (
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{currency}</p>
+              )}
+              <div className="flex justify-between text-gray-600">
+                <span>Subtotal</span>
+                <span>{formatCurrency(subtotal, currency)}</span>
+              </div>
+              {discountAmount > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span>
+                    Discount{invoice.discount?.type === 'percentage' ? ` (${invoice.discount.value}%)` : ''}
+                  </span>
+                  <span>-{formatCurrency(discountAmount, currency)}</span>
+                </div>
+              )}
+              <div className="flex justify-between border-t-2 border-gray-900 pt-2 mt-1">
+                <span className="font-bold text-gray-900 text-base">
+                  Total{groups.length > 1 ? ` (${currency})` : ''}
+                </span>
+                <span className="font-bold text-blue-700 text-base">
+                  {formatCurrency(total, currency)}
+                </span>
+              </div>
             </div>
-          )}
-          <div className="flex justify-between border-t-2 border-gray-900 pt-2 mt-1">
-            <span className="font-bold text-gray-900 text-base">Total</span>
-            <span className="font-bold text-blue-700 text-base">
-              {formatCurrency(total, currency)}
-            </span>
-          </div>
-        </div>
+          ))
+        )}
       </div>
 
       {/* Footer note */}

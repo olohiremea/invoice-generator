@@ -8,7 +8,7 @@ import {
   Font,
 } from '@react-pdf/renderer';
 import type { ActiveInvoice, BusinessSettings } from '../../types';
-import { buildInvoiceTotals } from '../../utils/calculations';
+import { buildMultiCurrencyTotals } from '../../utils/calculations';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 
 Font.register({
@@ -106,16 +106,27 @@ const styles = StyleSheet.create({
   },
   colDescription: { flex: 1 },
   colQty: { width: 40, textAlign: 'center' },
+  colCurrency: { width: 36, textAlign: 'center' },
   colUnitPrice: { width: 70, textAlign: 'right' },
   colTotal: { width: 70, textAlign: 'right' },
   itemName: { fontFamily: 'Helvetica-Bold', color: '#111827', fontSize: 10 },
   itemDesc: { color: '#6B7280', fontSize: 8, marginTop: 2 },
+  currencyBadge: { color: '#9CA3AF', fontSize: 8 },
   totalsSection: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
     marginTop: 16,
+    gap: 12,
   },
-  totalsBox: { width: 180 },
+  totalsBox: { width: 200 },
+  currencyGroupLabel: {
+    fontSize: 8,
+    fontFamily: 'Helvetica-Bold',
+    color: '#9CA3AF',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: 4,
+  },
   totalsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -157,11 +168,8 @@ interface Props {
 }
 
 export function InvoicePDFDocument({ invoice, settings }: Props) {
-  const { subtotal, discountAmount, total } = buildInvoiceTotals(
-    invoice.lineItems,
-    invoice.discount
-  );
-  const currency = settings.currency;
+  const groups = buildMultiCurrencyTotals(invoice.lineItems, invoice.discount);
+  const multiCurrency = groups.length > 1;
 
   return (
     <Document>
@@ -200,6 +208,7 @@ export function InvoicePDFDocument({ invoice, settings }: Props) {
         <View style={styles.tableHeader}>
           <Text style={[styles.tableHeaderText, styles.colDescription]}>Description</Text>
           <Text style={[styles.tableHeaderText, styles.colQty]}>Qty</Text>
+          <Text style={[styles.tableHeaderText, styles.colCurrency]}>CCY</Text>
           <Text style={[styles.tableHeaderText, styles.colUnitPrice]}>Unit Price</Text>
           <Text style={[styles.tableHeaderText, styles.colTotal]}>Total</Text>
         </View>
@@ -214,40 +223,48 @@ export function InvoicePDFDocument({ invoice, settings }: Props) {
               ) : null}
             </View>
             <Text style={[{ fontSize: 10 }, styles.colQty]}>{item.quantity}</Text>
+            <Text style={[styles.currencyBadge, styles.colCurrency]}>{item.currency}</Text>
             <Text style={[{ fontSize: 10 }, styles.colUnitPrice]}>
-              {formatCurrency(item.unitPrice, currency)}
+              {formatCurrency(item.unitPrice, item.currency)}
             </Text>
             <Text style={[{ fontSize: 10 }, styles.colTotal]}>
-              {formatCurrency(item.unitPrice * item.quantity, currency)}
+              {formatCurrency(item.unitPrice * item.quantity, item.currency)}
             </Text>
           </View>
         ))}
 
-        {/* Totals */}
+        {/* Totals — one block per currency */}
         <View style={styles.totalsSection}>
-          <View style={styles.totalsBox}>
-            <View style={styles.totalsRow}>
-              <Text style={styles.totalLabel}>Subtotal</Text>
-              <Text style={styles.totalValue}>{formatCurrency(subtotal, currency)}</Text>
-            </View>
-            {discountAmount > 0 && (
+          {groups.map(({ currency, subtotal, discountAmount, total }) => (
+            <View key={currency} style={styles.totalsBox}>
+              {multiCurrency && (
+                <Text style={styles.currencyGroupLabel}>{currency}</Text>
+              )}
               <View style={styles.totalsRow}>
-                <Text style={styles.discountLabel}>
-                  Discount
-                  {invoice.discount?.type === 'percentage'
-                    ? ` (${invoice.discount.value}%)`
-                    : ''}
-                </Text>
-                <Text style={styles.discountValue}>
-                  -{formatCurrency(discountAmount, currency)}
-                </Text>
+                <Text style={styles.totalLabel}>Subtotal</Text>
+                <Text style={styles.totalValue}>{formatCurrency(subtotal, currency)}</Text>
               </View>
-            )}
-            <View style={styles.grandTotalRow}>
-              <Text style={styles.grandTotalLabel}>Total</Text>
-              <Text style={styles.grandTotalValue}>{formatCurrency(total, currency)}</Text>
+              {discountAmount > 0 && (
+                <View style={styles.totalsRow}>
+                  <Text style={styles.discountLabel}>
+                    Discount
+                    {invoice.discount?.type === 'percentage'
+                      ? ` (${invoice.discount.value}%)`
+                      : ''}
+                  </Text>
+                  <Text style={styles.discountValue}>
+                    -{formatCurrency(discountAmount, currency)}
+                  </Text>
+                </View>
+              )}
+              <View style={styles.grandTotalRow}>
+                <Text style={styles.grandTotalLabel}>
+                  Total{multiCurrency ? ` (${currency})` : ''}
+                </Text>
+                <Text style={styles.grandTotalValue}>{formatCurrency(total, currency)}</Text>
+              </View>
             </View>
-          </View>
+          ))}
         </View>
 
         {/* Footer */}

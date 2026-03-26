@@ -20,6 +20,7 @@ const SEED_PACKAGES: Package[] = [
     description: 'Custom responsive website design (up to 5 pages)',
     unitPrice: 1500,
     unit: 'project',
+    currency: 'USD',
   },
   {
     id: uuidv4(),
@@ -27,6 +28,7 @@ const SEED_PACKAGES: Package[] = [
     description: 'Monthly search engine optimization and reporting',
     unitPrice: 500,
     unit: 'month',
+    currency: 'USD',
   },
   {
     id: uuidv4(),
@@ -34,6 +36,7 @@ const SEED_PACKAGES: Package[] = [
     description: 'One-on-one business or technical consulting',
     unitPrice: 150,
     unit: 'hour',
+    currency: 'NGN',
   },
 ];
 

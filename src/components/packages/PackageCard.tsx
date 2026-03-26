@@ -11,7 +11,6 @@ interface PackageCardProps {
 
 export function PackageCard({ pkg, onEdit }: PackageCardProps) {
   const deletePackage = useAppStore((s) => s.deletePackage);
-  const settings = useAppStore((s) => s.settings);
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-3 hover:shadow-sm transition-shadow">
@@ -38,9 +37,12 @@ export function PackageCard({ pkg, onEdit }: PackageCardProps) {
       </div>
       <div className="flex items-center justify-between">
         <span className="text-xs text-gray-400">per {pkg.unit}</span>
-        <span className="text-base font-bold text-blue-700">
-          {formatCurrency(pkg.unitPrice, settings.currency)}
-        </span>
+        <div className="text-right">
+          <span className="text-base font-bold text-blue-700">
+            {formatCurrency(pkg.unitPrice, pkg.currency)}
+          </span>
+          <span className="text-xs text-gray-400 ml-1">{pkg.currency}</span>
+        </div>
       </div>
     </div>
   );

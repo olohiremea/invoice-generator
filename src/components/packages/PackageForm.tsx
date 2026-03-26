@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import type { Package } from '../../types';
 import { Input, Textarea } from '../ui/Input';
 import { Button } from '../ui/Button';
+import { CURRENCIES } from '../../utils/currencies';
+import { useAppStore } from '../../store/useAppStore';
 
 interface PackageFormProps {
   initial?: Package;
@@ -10,10 +12,13 @@ interface PackageFormProps {
 }
 
 export function PackageForm({ initial, onSubmit, onCancel }: PackageFormProps) {
+  const defaultCurrency = useAppStore((s) => s.settings.currency);
+
   const [name, setName] = useState(initial?.name ?? '');
   const [description, setDescription] = useState(initial?.description ?? '');
   const [unitPrice, setUnitPrice] = useState(initial?.unitPrice?.toString() ?? '');
   const [unit, setUnit] = useState(initial?.unit ?? 'item');
+  const [currency, setCurrency] = useState(initial?.currency ?? defaultCurrency);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -22,6 +27,7 @@ export function PackageForm({ initial, onSubmit, onCancel }: PackageFormProps) {
       setDescription(initial.description);
       setUnitPrice(initial.unitPrice.toString());
       setUnit(initial.unit);
+      setCurrency(initial.currency);
     }
   }, [initial]);
 
@@ -43,6 +49,7 @@ export function PackageForm({ initial, onSubmit, onCancel }: PackageFormProps) {
       description: description.trim(),
       unitPrice: parseFloat(unitPrice),
       unit: unit.trim(),
+      currency,
     });
   }
 
@@ -76,7 +83,7 @@ export function PackageForm({ initial, onSubmit, onCancel }: PackageFormProps) {
             error={errors.unitPrice}
           />
         </div>
-        <div className="w-32">
+        <div className="w-28">
           <Input
             label="Unit"
             value={unit}
@@ -85,6 +92,21 @@ export function PackageForm({ initial, onSubmit, onCancel }: PackageFormProps) {
             error={errors.unit}
           />
         </div>
+      </div>
+      {/* Currency selector */}
+      <div className="flex flex-col gap-1">
+        <label className="text-sm font-medium text-gray-700">Currency</label>
+        <select
+          value={currency}
+          onChange={(e) => setCurrency(e.target.value)}
+          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 bg-white"
+        >
+          {CURRENCIES.map((c) => (
+            <option key={c.code} value={c.code}>
+              {c.code} — {c.name} ({c.symbol})
+            </option>
+          ))}
+        </select>
       </div>
       <div className="flex justify-end gap-2 pt-2">
         <Button type="button" variant="secondary" onClick={onCancel}>

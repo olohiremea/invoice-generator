@@ -3,6 +3,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { Input, Textarea } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { LogoUploader } from './LogoUploader';
+import { CURRENCIES } from '../../utils/currencies';
 
 export function SettingsPage() {
   const settings = useAppStore((s) => s.settings);
@@ -59,19 +60,18 @@ export function SettingsPage() {
                 placeholder="INV-"
               />
             </div>
-            <div className="w-28">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+            <div className="w-40">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Default Currency</label>
               <select
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 bg-white"
               >
-                <option value="USD">USD ($)</option>
-                <option value="EUR">EUR (€)</option>
-                <option value="GBP">GBP (£)</option>
-                <option value="CAD">CAD ($)</option>
-                <option value="AUD">AUD ($)</option>
-                <option value="NGN">NGN (₦)</option>
+                {CURRENCIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.code} — {c.symbol}
+                  </option>
+                ))}
               </select>
             </div>
           </div>

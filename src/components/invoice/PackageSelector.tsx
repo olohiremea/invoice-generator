@@ -8,7 +8,6 @@ export function PackageSelector() {
   const packages = useAppStore((s) => s.packages);
   const lineItems = useAppStore((s) => s.activeInvoice.lineItems);
   const updateActiveInvoice = useAppStore((s) => s.updateActiveInvoice);
-  const settings = useAppStore((s) => s.settings);
 
   function isAdded(pkg: Package): boolean {
     return lineItems.some((item) => item.packageId === pkg.id);
@@ -22,6 +21,7 @@ export function PackageSelector() {
       description: pkg.description,
       unitPrice: pkg.unitPrice,
       unit: pkg.unit,
+      currency: pkg.currency,
       quantity: 1,
     };
     updateActiveInvoice({ lineItems: [...lineItems, newItem] });
@@ -54,7 +54,9 @@ export function PackageSelector() {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-800 truncate">{pkg.name}</p>
                 <p className="text-xs text-gray-500">
-                  {formatCurrency(pkg.unitPrice, settings.currency)} / {pkg.unit}
+                  {formatCurrency(pkg.unitPrice, pkg.currency)}{' '}
+                  <span className="text-gray-400">{pkg.currency}</span>
+                  {' '}/ {pkg.unit}
                 </p>
               </div>
               <Button

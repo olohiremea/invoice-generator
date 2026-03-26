@@ -4,6 +4,7 @@ export interface Package {
   description: string;
   unitPrice: number;
   unit: string;
+  currency: string;
 }
 
 export interface LineItem {
@@ -13,6 +14,7 @@ export interface LineItem {
   unitPrice: number;
   unit: string;
   quantity: number;
+  currency: string;
 }
 
 export type DiscountType = 'percentage' | 'flat';
@@ -20,6 +22,13 @@ export type DiscountType = 'percentage' | 'flat';
 export interface Discount {
   type: DiscountType;
   value: number;
+}
+
+export interface CurrencyTotal {
+  currency: string;
+  subtotal: number;
+  discountAmount: number;
+  total: number;
 }
 
 export interface BusinessSettings {

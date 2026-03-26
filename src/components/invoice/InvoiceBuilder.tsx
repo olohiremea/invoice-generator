@@ -11,7 +11,6 @@ export function InvoiceBuilder() {
   const lineItems = useAppStore((s) => s.activeInvoice.lineItems);
   const invoiceNumber = useAppStore((s) => s.activeInvoice.invoiceNumber);
   const resetActiveInvoice = useAppStore((s) => s.resetActiveInvoice);
-  const settings = useAppStore((s) => s.settings);
 
   return (
     <div className="p-6 flex flex-col gap-5 max-w-xl">
@@ -38,7 +37,7 @@ export function InvoiceBuilder() {
           <h2 className="text-sm font-semibold text-gray-700 mb-2">Selected Items</h2>
           <div>
             {lineItems.map((item) => (
-              <LineItemRow key={item.packageId} item={item} currency={settings.currency} />
+              <LineItemRow key={item.packageId} item={item} />
             ))}
           </div>
         </div>

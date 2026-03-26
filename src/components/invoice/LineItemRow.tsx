@@ -5,10 +5,9 @@ import { useAppStore } from '../../store/useAppStore';
 
 interface LineItemRowProps {
   item: LineItem;
-  currency: string;
 }
 
-export function LineItemRow({ item, currency }: LineItemRowProps) {
+export function LineItemRow({ item }: LineItemRowProps) {
   const lineItems = useAppStore((s) => s.activeInvoice.lineItems);
   const updateActiveInvoice = useAppStore((s) => s.updateActiveInvoice);
 
@@ -40,7 +39,11 @@ export function LineItemRow({ item, currency }: LineItemRowProps) {
     <div className="flex items-center gap-3 py-3 border-b border-gray-100 last:border-0">
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-gray-900 truncate">{item.packageName}</p>
-        <p className="text-xs text-gray-400">{formatCurrency(item.unitPrice, currency)} / {item.unit}</p>
+        <p className="text-xs text-gray-400">
+          {formatCurrency(item.unitPrice, item.currency)}{' '}
+          <span className="text-gray-300">{item.currency}</span>
+          {' '}/ {item.unit}
+        </p>
       </div>
       {/* Quantity stepper */}
       <div className="flex items-center gap-1">
@@ -64,8 +67,8 @@ export function LineItemRow({ item, currency }: LineItemRowProps) {
           <Plus size={12} />
         </button>
       </div>
-      <div className="text-sm font-semibold text-gray-900 w-20 text-right">
-        {formatCurrency(item.unitPrice * item.quantity, currency)}
+      <div className="text-sm font-semibold text-gray-900 w-24 text-right">
+        {formatCurrency(item.unitPrice * item.quantity, item.currency)}
       </div>
       <button
         onClick={remove}
